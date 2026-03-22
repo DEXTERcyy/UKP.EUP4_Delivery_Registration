@@ -50,6 +50,7 @@
             border-radius: 10px;
             text-align: center;
             margin-bottom: 30px;
+            container-type: inline-size;
         }
 
         .current-scan h2 {
@@ -59,14 +60,17 @@
         }
 
         .scan-display {
-            font-size: 150px;
+            font-size: clamp(30px, 7.5cqw, 150px);
             font-weight: bold;
             font-family: "Consolas", "Courier New", monospace;
             margin: 30px 0;
             min-height: 200px;
             color: #ffffff;
             line-height: 1.2;
-            word-wrap: break-word;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .scan-status {
@@ -409,7 +413,7 @@
         }
 
         .fullscreen-mode .scan-display {
-            font-size: 200px;
+            font-size: clamp(40px, 8cqw, 250px);
         }
 
         .fullscreen-mode .case-type-display {
@@ -426,7 +430,7 @@
 
         @media (max-width: 768px) {
             .scan-display {
-                font-size: 80px;
+                font-size: clamp(20px, 10cqw, 80px);
                 min-height: 120px;
             }
             .stat-box p {
