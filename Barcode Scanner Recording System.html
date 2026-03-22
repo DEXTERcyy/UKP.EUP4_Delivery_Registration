@@ -309,6 +309,7 @@
         .carrier-UPS { background: #FFCC00; color: black; }
         .carrier-DPD { background: #00CC00; color: black; }
         .carrier-PostNL { background: #0066FF; color: white; }
+        .carrier-Royal-Mail { background: #CC0000; color: white; }
         .carrier-Unknown { background: #999999; color: white; }
 
         .delete-btn {
@@ -558,6 +559,11 @@
              // PostNL: 3S / 2S + Alphanumeric (often 13+ chars total)
              if (/^(3S|2S)[A-Z0-9]{11,}/.test(barcode)) {
                  return 'PostNL';
+             }
+             
+             // Royal Mail: 2 Letters + 9 Digits + GB (e.g. EA123456789GB, total 13 chars)
+             if (/^[A-Z]{2}\d{9}GB$/.test(barcode)) {
+                 return 'Royal Mail';
              }
              
              return 'Unknown';
