@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Scanner Recording System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Arial", sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: #000000;
+            border: 3px solid #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .date-info {
+            text-align: center;
+            color: #cccccc;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        .current-scan {
+            background: #000000;
+            border: 5px solid #00ff00;
+            color: #ffffff;
+            padding: 60px 40px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .current-scan h2 {
+            font-size: 30px;
+            margin-bottom: 20px;
+            color: #00ff00;
+        }
+
+        .scan-display {
+            font-size: 150px;
+            font-weight: bold;
+            font-family: "Consolas", "Courier New", monospace;
+            margin: 30px 0;
+            min-height: 200px;
+            color: #ffffff;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .scan-status {
+            font-size: 24px;
+            color: #00ff00;
+            margin-top: 20px;
+        }
+
+        .case-type-display {
+            font-size: 36px;
+            color: #ffff00;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .scan-input {
+            flex: 2;
+            padding: 15px;
+            font-size: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 8px;
+            outline: none;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .scan-input:focus {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .case-type-select {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            font-size: 20px;
+            border: 3px solid #ffff00;
+            border-radius: 8px;
+            outline: none;
+            background: #1a1a1a;
+            color: #ffff00;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .case-type-select:focus {
+            border-color: #ffff00;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+        }
+
+        .case-type-select option {
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: #1a1a1a;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 200px;
+            margin: 5px;
+        }
+
+        .stat-box h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #cccccc;
+        }
+
+        .stat-box p {
+            font-size: 48px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 20px;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #1a1a1a;
+            color: #ffffff;
+            transition: all 0.3s;
+        }
+
+        .btn-export {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .btn-export:hover {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .btn-clear {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .btn-clear:hover {
+            background: #ff0000;
+            color: #ffffff;
+        }
+
+        .btn-restore {
+            border-color: #ffff00;
+            color: #ffff00;
+        }
+
+        .btn-restore:hover {
+            background: #ffff00;
+            color: #000000;
+        }
+
+        .btn-fullscreen {
+            border-color: #00bfff;
+            color: #00bfff;
+        }
+
+        .btn-fullscreen:hover {
+            background: #00bfff;
+            color: #000000;
+        }
+
+        .history {
+            margin-top: 30px;
+        }
+
+        .history h2 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #000000;
+            border: 2px solid #ffffff;
+        }
+
+        th {
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid #ffffff;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #333333;
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        tr:hover {
+            background: #1a1a1a;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #666666;
+            font-size: 20px;
+        }
+
+        .case-type-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .case-type-tag:hover {
+            opacity: 0.8;
+        }
+
+        .case-type-Repair { background: #3498db; color: white; }
+        .case-type-ExpressRefresh { background: #e74c3c; color: white; }
+        .case-type-DOA { background: #9b59b6; color: white; }
+        .case-type-Return { background: #f39c12; color: white; }
+        .case-type-SecondRepair { background: #1abc9c; color: white; }
+        .case-type-RTS { background: #e91e63; color: white; }
+        .case-type-Premium Case { background: #00ced1; color: white; }
+        .case-type-Exception Case { background: #8b4513; color: white; }
+        .case-type-Unclassified { background: #666666; color: white; }
+
+        .carrier-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .carrier-DHL-Express { background: #FF6600; color: white; }
+        .carrier-DHL-Parcel { background: #FF8800; color: white; }
+        .carrier-UPS { background: #FFCC00; color: black; }
+        .carrier-DPD { background: #00CC00; color: black; }
+        .carrier-PostNL { background: #0066FF; color: white; }
+        .carrier-Unknown { background: #999999; color: white; }
+
+        .delete-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .flash {
+            animation: flash 0.5s ease-in-out;
+        }
+
+        @keyframes flash {
+            0%, 100% { 
+                opacity: 1; 
+                background: #000000;
+            }
+            50% { 
+                opacity: 0.8; 
+                background: #1a1a1a;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666666;
+            font-size: 16px;
+        }
+
+        .fullscreen-mode .container {
+            max-width: 100%;
+            height: 100vh;
+            border: none;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fullscreen-mode .current-scan {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        .fullscreen-mode h1,
+        .fullscreen-mode .date-info,
+        .fullscreen-mode .stats,
+        .fullscreen-mode .buttons,
+        .fullscreen-mode .history,
+        .fullscreen-mode .footer {
+            display: none;
+        }
+
+        .fullscreen-mode .input-section {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 1400px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .fullscreen-mode .scan-input {
+            flex: 2;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 5px;
+            background: rgba(26, 26, 26, 0.9);
+            color: #ffffff;
+            height: auto;
+            width: auto;
+        }
+
+        .fullscreen-mode .case-type-select {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ffff00;
+            border-radius: 5px;
+            background: rgba(26, 26, 26, 0.9);
+            color: #ffff00;
+            height: auto;
+            width: auto;
+        }
+
+        .fullscreen-mode .scan-display {
+            font-size: 200px;
+        }
+
+        .fullscreen-mode .case-type-display {
+            font-size: 50px;
+        }
+
+        .fullscreen-mode .scan-status {
+            font-size: 32px;
+        }
+
+        .fullscreen-mode .current-scan h2 {
+            font-size: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .scan-display {
+                font-size: 80px;
+                min-height: 120px;
+            }
+            .stat-box p {
+                font-size: 36px;
+            }
+            th, td {
+                padding: 8px;
+                font-size: 12px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .case-type-display {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Barcode Scanner Recording System</h1>
+        <div class="date-info" id="currentDate"></div>
+
+        <div class="current-scan">
+            <h2>Current Scan</h2>
+            <div class="scan-display" id="scanDisplay">Waiting for scan...</div>
+            <div class="case-type-display" id="caseTypeDisplay">Case Type: Not Selected</div>
+            <div class="scan-status" id="scanStatus">Ready | Please scan barcode with scanner</div>
+        </div>
+
+        <div class="input-section">
+            <input type="text" class="scan-input" id="scanInput" placeholder="Scanner Input (Auto Focus)" autofocus>
+            <select class="case-type-select" id="caseTypeSelect">
+                <option value="">Select Case Type</option>
+                <option value="Repair">Repair</option>
+                <option value="ExpressRefresh">Express Refresh</option>
+                <option value="DOA">DOA</option>
+                <option value="Return">Return</option>
+                <option value="SecondRepair">Second Repair</option>
+                <option value="RTS">RTS</option>
+                <option value="Premium Case">Premium Case</option>
+                <option value="Exception Case">Exception Case</option>
+            </select>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <h3>Today's Scans</h3>
+                <p id="todayCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>This Month's Scans</h3>
+                <p id="monthCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>Total Scans</h3>
+                <p id="totalCount">0</p>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-fullscreen" onclick="toggleFullscreen()">Fullscreen</button>
+            <button class="btn-export" onclick="exportToExcel()">Export Excel</button>
+            <button class="btn-clear" onclick="clearRecords()">Clear Records</button>
+            <button class="btn-restore" onclick="restoreRecords()">Restore Records</button>
+        </div>
+
+        <div class="history">
+            <h2>Scan History</h2>
+            <div class="table-container">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Scanned Content</th>
+                            <th>Carrier</th>
+                            <th>Case Type</th>
+                            <th>Scan Time</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr>
+                            <td colspan="7" class="no-data">No scan records</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Note: Data is automatically saved in browser local storage | Data will be retained after closing browser | Press ESC to exit fullscreen</p>
+        </div>
+    </div>
+
+     <script>
+         let scanRecords = [];
+         let currentIndex = 0;
+         let currentCaseType = '';
+         let isFullscreen = false;
+
+         // Carrier detection rules
+         function detectCarrier(barcode) {
+             // DHL Express: 10 digits
+             if (/^\d{10}$/.test(barcode)) {
+                 return 'DHL Express';
+             }
+             
+             // DHL Parcel: 3S / JVGL / JJD + digits
+             if (/^(3S|JVGL|JJD)\d+/.test(barcode)) {
+                 return 'DHL Parcel';
+             }
+             
+             // UPS: 1Z + Alphanumeric (total 18 chars)
+             if (/^1Z[A-Z0-9]{16}$/.test(barcode)) {
+                 return 'UPS';
+             }
+             
+             // DPD: 14 digits or starts with 1597
+             if (/^\d{14}$/.test(barcode) || /^1597\d+/.test(barcode)) {
+                 return 'DPD';
+             }
+             
+             // PostNL: 3S / 2S + Alphanumeric (often 13+ chars total)
+             if (/^(3S|2S)[A-Z0-9]{11,}/.test(barcode)) {
+                 return 'PostNL';
+             }
+             
+             return 'Unknown';
+         }
+
+         function init() {
+            updateDate();
+            loadRecords();
+            updateStats();
+            updateHistory();
+            
+            document.getElementById('scanInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const barcode = this.value.trim();
+                    const caseType = document.getElementById('caseTypeSelect').value;
+                    
+                    if (barcode) {
+                        processScan(barcode, caseType);
+                        this.value = '';
+                    }
+                }
+            });
+
+            document.getElementById('caseTypeSelect').addEventListener('change', function() {
+                currentCaseType = this.value;
+                updateCaseTypeDisplay(currentCaseType);
+            });
+
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    isFullscreen = false;
+                    document.body.classList.remove('fullscreen-mode');
+                }
+            });
+
+            setInterval(updateDate, 1000);
+            setInterval(() => {
+                document.getElementById('scanInput').focus();
+            }, 5000);
+        }
+
+        function toggleFullscreen() {
+            if (!isFullscreen) {
+                document.body.classList.add('fullscreen-mode');
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                }
+                isFullscreen = true;
+            } else {
+                document.body.classList.remove('fullscreen-mode');
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                isFullscreen = false;
+            }
+        }
+
+        function updateCaseTypeDisplay(caseType) {
+            const display = document.getElementById('caseTypeDisplay');
+            if (caseType) {
+                display.textContent = 'Case Type: ' + caseType;
+            } else {
+                display.textContent = 'Case Type: Not Selected';
+            }
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const day = now.getDate();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            const month = monthNames[now.getMonth()];
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('currentDate').textContent = 
+                day + ' ' + month + ' ' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+        }
+
+        function processScan(barcode, caseType) {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = hours + ':' + minutes + ':' + seconds;
+            const dateStr = now.toLocaleDateString('en-US');
+
+            const isDuplicate = scanRecords.some(record => record.content === barcode);
+            if (isDuplicate) {
+                const display = document.getElementById('scanDisplay');
+                display.textContent = barcode + ' (DUPLICATE!)';
+                display.style.color = '#ff0000';
+                display.classList.add('flash');
+                setTimeout(() => display.classList.remove('flash'), 500);
+                setTimeout(() => {
+                    display.style.color = '#ffffff';
+                }, 2000);
+                
+                document.getElementById('scanStatus').textContent = 
+                    'Duplicate Scan! This case number already exists | Time: ' + timeStr;
+                return;
+            }
+
+             currentIndex++;
+             
+             const record = {
+                 index: currentIndex,
+                 content: barcode,
+                 carrier: detectCarrier(barcode),
+                 caseType: caseType || 'Unclassified',
+                 time: timeStr,
+                 date: dateStr,
+                 timestamp: now.getTime()
+             };
+
+             scanRecords.unshift(record);
+             saveRecords();
+
+             const display = document.getElementById('scanDisplay');
+             display.textContent = barcode;
+             display.style.color = '#ffffff';
+             display.classList.add('flash');
+             setTimeout(() => display.classList.remove('flash'), 500);
+
+             document.getElementById('scanStatus').textContent = 
+                 'Scan Successful | Time: ' + timeStr;
+
+             updateStats();
+             updateHistory();
+         }
+
+        function updateStats() {
+            const now = new Date();
+            const today = now.toDateString();
+            const thisMonth = now.getMonth();
+            const thisYear = now.getFullYear();
+
+            let todayCount = 0;
+            let monthCount = 0;
+            let totalCount = scanRecords.length;
+
+            scanRecords.forEach(record => {
+                const recordDate = new Date(record.timestamp);
+                
+                if (recordDate.toDateString() === today) {
+                    todayCount++;
+                }
+                
+                if (recordDate.getMonth() === thisMonth && 
+                    recordDate.getFullYear() === thisYear) {
+                    monthCount++;
+                }
+            });
+
+            document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('monthCount').textContent = monthCount;
+            document.getElementById('totalCount').textContent = totalCount;
+        }
+
+         function updateHistory() {
+             const tbody = document.getElementById('historyBody');
+             
+             if (scanRecords.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="7" class="no-data">No scan records</td></tr>';
+                 return;
+             }
+
+             tbody.innerHTML = scanRecords.map(function(record, index) {
+                 var caseTypeClass = 'case-type-tag case-type-' + record.caseType;
+                 var caseTypeHtml = '<span class="' + caseTypeClass + '" ondblclick="editCaseType(' + index + ')">' + record.caseType + '</span>';
+                 
+                 var carrierClass = 'carrier-tag carrier-' + record.carrier.replace(/ /g, '-');
+                 var carrierHtml = '<span class="' + carrierClass + '">' + record.carrier + '</span>';
+                 
+                 return '<tr>' +
+                     '<td>' + record.index + '</td>' +
+                     '<td>' + escapeHtml(record.content) + '</td>' +
+                     '<td>' + carrierHtml + '</td>' +
+                     '<td>' + caseTypeHtml + '</td>' +
+                     '<td>' + record.time + '</td>' +
+                     '<td>' + record.date + '</td>' +
+                     '<td><button class="delete-btn" onclick="deleteRecord(' + index + ')">Delete</button></td>' +
+                     '</tr>';
+             }).join('');
+         }
+
+        function editCaseType(index) {
+            const record = scanRecords[index];
+            const caseTypes = ['Repair', 'ExpressRefresh', 'DOA', 'Return', 'SecondRepair', 'RTS', 'Premium Case', 'Exception Case'];
+            
+            let html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:10000;">';
+            html += '<div style="background:#1a1a1a;padding:30px;border-radius:10px;border:2px solid #fff;text-align:center;">';
+            html += '<h3 style="color:#fff;margin-bottom:20px;">Edit Case Type</h3>';
+            html += '<p style="color:#ccc;margin-bottom:15px;">Case No.: ' + record.content + '</p>';
+            
+            caseTypes.forEach(function(type) {
+                html += '<button onclick="changeCaseType(' + index + ',\'' + type + '\')" style="display:block;width:100%;padding:10px;margin:5px 0;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">' + type + '</button>';
+            });
+            
+            html += '<button onclick="closeEditDialog()" style="display:block;width:100%;padding:10px;margin-top:15px;background:#666;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">Cancel</button>';
+            html += '</div></div>';
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function changeCaseType(index, newType) {
+            scanRecords[index].caseType = newType;
+            saveRecords();
+            updateHistory();
+            closeEditDialog();
+        }
+
+        function closeEditDialog() {
+            const dialog = document.body.lastElementChild;
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        function deleteRecord(index) {
+            const record = scanRecords[index];
+            if (confirm('Delete this record?\nCase No.: ' + record.content)) {
+                scanRecords.splice(index, 1);
+                saveRecords();
+                updateStats();
+                updateHistory();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function saveRecords() {
+            localStorage.setItem('scanRecords_en', JSON.stringify(scanRecords));
+            localStorage.setItem('currentIndex_en', currentIndex.toString());
+        }
+
+        function loadRecords() {
+            const savedRecords = localStorage.getItem('scanRecords_en');
+            const savedIndex = localStorage.getItem('currentIndex_en');
+            
+            if (savedRecords) {
+                scanRecords = JSON.parse(savedRecords);
+            }
+            
+            if (savedIndex) {
+                currentIndex = parseInt(savedIndex);
+            }
+        }
+
+         function exportToExcel() {
+             if (scanRecords.length === 0) {
+                 alert('No data to export!');
+                 return;
+             }
+
+             const now = new Date();
+             const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+             
+             let csv = '\uFEFF';
+             csv += 'No.,Scanned Content,Carrier,Case Type,Scan Time,Date\n';
+             
+             scanRecords.slice().reverse().forEach(function(record) {
+                 csv += record.index + ',"' + record.content + '","' + record.carrier + '","' + record.caseType + '",' + record.time + ',' + record.date + '\n';
+             });
+
+             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+             const link = document.createElement('a');
+             const url = URL.createObjectURL(blob);
+             
+             link.setAttribute('href', url);
+             link.setAttribute('download', 'ScanRecord_' + dateStr + '.csv');
+             link.style.visibility = 'hidden';
+             
+             document.body.appendChild(link);
+             link.click();
+             document.body.removeChild(link);
+
+             alert('Export Successful!\nFile Name: ScanRecord_' + dateStr + '.csv\n\nTip: Open CSV file with Excel');
+         }
+
+        function clearRecords() {
+            if (confirm('Are you sure to clear all scan records?\n\nTip: You can use "Restore Records" to recover')) {
+                localStorage.setItem('scanRecordsBackup_en', JSON.stringify(scanRecords));
+                localStorage.setItem('currentIndexBackup_en', currentIndex.toString());
+                
+                scanRecords = [];
+                currentIndex = 0;
+                saveRecords();
+                updateStats();
+                updateHistory();
+                alert('Records cleared!\nClick "Restore Records" to recover');
+            }
+        }
+
+        function restoreRecords() {
+            const backupRecords = localStorage.getItem('scanRecordsBackup_en');
+            const backupIndex = localStorage.getItem('currentIndexBackup_en');
+            
+            if (!backupRecords) {
+                alert('No records to restore!');
+                return;
+            }
+
+            if (confirm('Are you sure to restore the last cleared records?')) {
+                scanRecords = JSON.parse(backupRecords);
+                currentIndex = parseInt(backupIndex);
+                saveRecords();
+                updateStats();
+                updateHistory();
+                alert('Records restored!');
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
