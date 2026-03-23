@@ -310,6 +310,7 @@
         .carrier-DPD { background: #00CC00; color: black; }
         .carrier-PostNL { background: #0066FF; color: white; }
         .carrier-Royal-Mail { background: #CC0000; color: white; }
+        .carrier-FedEx { background: #4D148C; color: white; }
         .carrier-Unknown { background: #999999; color: white; }
 
         .delete-btn {
@@ -564,6 +565,11 @@
              // Royal Mail: 2 Letters + 9 Digits + GB (e.g. EA123456789GB, total 13 chars)
              if (/^[A-Z]{2}\d{9}GB$/.test(barcode)) {
                  return 'Royal Mail';
+             }
+             
+             // FedEx: 34 digits
+             if (/^\d{34}$/.test(barcode)) {
+                 return 'FedEx';
              }
              
              return 'Unknown';
