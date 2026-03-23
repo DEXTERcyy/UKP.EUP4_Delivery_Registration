@@ -653,6 +653,21 @@
             const timeStr = hours + ':' + minutes + ':' + seconds;
             const dateStr = now.toLocaleDateString('en-US');
 
+            if (barcode.includes('+')) {
+                const display = document.getElementById('scanDisplay');
+                display.textContent = 'Invalid Input';
+                display.style.color = '#ff0000';
+                display.classList.add('flash');
+                setTimeout(() => display.classList.remove('flash'), 500);
+                setTimeout(() => {
+                    display.style.color = '#ffffff';
+                }, 2000);
+                
+                document.getElementById('scanStatus').textContent = 
+                    'Invalid Input: "+" character is not allowed | Time: ' + timeStr;
+                return;
+            }
+
             const isDuplicate = scanRecords.some(record => record.content === barcode);
             if (isDuplicate) {
                 const display = document.getElementById('scanDisplay');
@@ -671,11 +686,14 @@
 
              currentIndex++;
              
+             let detectedCarrier = detectCarrier(barcode);
+             let finalCaseType = caseType || 'Repair';
+             
              const record = {
                  index: currentIndex,
                  content: barcode,
-                 carrier: detectCarrier(barcode),
-                 caseType: caseType || 'Unclassified',
+                 carrier: detectedCarrier,
+                 caseType: finalCaseType,
                  time: timeStr,
                  date: dateStr,
                  timestamp: now.getTime()
