@@ -514,13 +514,33 @@
                     </div>
                 </div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box" style="min-width: 300px;">
                 <h3>This Month's Scans</h3>
                 <p id="monthCount">0</p>
+                <div class="stat-sub">
+                    <div class="stat-sub-item">
+                        <span class="label">End User</span>
+                        <span class="value" id="monthEndUserCount">0</span>
+                    </div>
+                    <div class="stat-sub-item">
+                        <span class="label">Dealer</span>
+                        <span class="value" id="monthDealerCount">0</span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box" style="min-width: 300px;">
                 <h3>Total Scans</h3>
                 <p id="totalCount">0</p>
+                <div class="stat-sub">
+                    <div class="stat-sub-item">
+                        <span class="label">End User</span>
+                        <span class="value" id="totalEndUserCount">0</span>
+                    </div>
+                    <div class="stat-sub-item">
+                        <span class="label">Dealer</span>
+                        <span class="value" id="totalDealerCount">0</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -764,14 +784,21 @@
             let todayCount = 0;
             let dealerCount = 0;
             let monthCount = 0;
+            let monthDealerCount = 0;
             let totalCount = scanRecords.length;
+            let totalDealerCount = 0;
 
             scanRecords.forEach(record => {
                 const recordDate = new Date(record.timestamp);
+                const isPostNL = record.carrier === 'PostNL';
                 
+                if (isPostNL) {
+                    totalDealerCount++;
+                }
+
                 if (recordDate.toDateString() === today) {
                     todayCount++;
-                    if (record.carrier === 'PostNL') {
+                    if (isPostNL) {
                         dealerCount++;
                     }
                 }
@@ -779,16 +806,27 @@
                 if (recordDate.getMonth() === thisMonth && 
                     recordDate.getFullYear() === thisYear) {
                     monthCount++;
+                    if (isPostNL) {
+                        monthDealerCount++;
+                    }
                 }
             });
 
             let endUserCount = todayCount - dealerCount;
+            let monthEndUserCount = monthCount - monthDealerCount;
+            let totalEndUserCount = totalCount - totalDealerCount;
 
             document.getElementById('todayCount').textContent = todayCount;
             document.getElementById('endUserCount').textContent = endUserCount;
             document.getElementById('dealerCount').textContent = dealerCount;
+            
             document.getElementById('monthCount').textContent = monthCount;
+            document.getElementById('monthEndUserCount').textContent = monthEndUserCount;
+            document.getElementById('monthDealerCount').textContent = monthDealerCount;
+            
             document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('totalEndUserCount').textContent = totalEndUserCount;
+            document.getElementById('totalDealerCount').textContent = totalDealerCount;
         }
 
          function updateHistory() {
