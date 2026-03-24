@@ -327,6 +327,11 @@
             border-radius: 5px;
             font-weight: bold;
             font-size: 14px;
+            cursor: pointer;
+        }
+
+        .carrier-tag:hover {
+            opacity: 0.8;
         }
 
         .carrier-DHL-Express { background: #FFD700; color: black; }
@@ -839,10 +844,10 @@
 
              tbody.innerHTML = scanRecords.map(function(record, index) {
                  var caseTypeClass = 'case-type-tag case-type-' + record.caseType;
-                 var caseTypeHtml = '<span class="' + caseTypeClass + '" ondblclick="editCaseType(' + index + ')">' + record.caseType + '</span>';
+                 var caseTypeHtml = '<span class="' + caseTypeClass + '" onclick="editCaseType(' + index + ')">' + record.caseType + '</span>';
                  
                  var carrierClass = 'carrier-tag carrier-' + record.carrier.replace(/ /g, '-');
-                 var carrierHtml = '<span class="' + carrierClass + '">' + record.carrier + '</span>';
+                 var carrierHtml = '<span class="' + carrierClass + '" onclick="editCarrier(' + index + ')">' + record.carrier + '</span>';
                  
                  return '<tr>' +
                      '<td>' + record.index + '</td>' +
@@ -878,6 +883,33 @@
         function changeCaseType(index, newType) {
             scanRecords[index].caseType = newType;
             saveRecords();
+            updateHistory();
+            closeEditDialog();
+        }
+
+        function editCarrier(index) {
+            const record = scanRecords[index];
+            const carriers = ['DHL Express', 'DHL Parcel', 'UPS', 'DPD', 'PostNL', 'Royal Mail', 'FedEx', 'Unknown'];
+            
+            let html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:10000;">';
+            html += '<div style="background:#1a1a1a;padding:30px;border-radius:10px;border:2px solid #fff;text-align:center;max-height:80vh;overflow-y:auto;">';
+            html += '<h3 style="color:#fff;margin-bottom:20px;">Edit Carrier</h3>';
+            html += '<p style="color:#ccc;margin-bottom:15px;">Case No.: ' + record.content + '</p>';
+            
+            carriers.forEach(function(carrier) {
+                html += '<button onclick="changeCarrier(' + index + ',\'' + carrier + '\')" style="display:block;width:100%;padding:10px;margin:5px 0;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">' + carrier + '</button>';
+            });
+            
+            html += '<button onclick="closeEditDialog()" style="display:block;width:100%;padding:10px;margin-top:15px;background:#666;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">Cancel</button>';
+            html += '</div></div>';
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        function changeCarrier(index, newCarrier) {
+            scanRecords[index].carrier = newCarrier;
+            saveRecords();
+            updateStats();
             updateHistory();
             closeEditDialog();
         }
