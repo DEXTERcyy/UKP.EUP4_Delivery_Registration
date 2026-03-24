@@ -662,7 +662,7 @@
             const timeStr = hours + ':' + minutes + ':' + seconds;
             const dateStr = now.toLocaleDateString('en-US');
 
-            if (barcode.includes('+') || barcode.includes('%')) {
+            if (barcode.includes('+') || barcode.includes('%') || barcode.includes('-')) {
                 const display = document.getElementById('scanDisplay');
                 display.textContent = 'Invalid Input';
                 display.style.color = '#ff0000';
@@ -673,7 +673,7 @@
                 }, 2000);
                 
                 document.getElementById('scanStatus').textContent = 
-                    'Invalid Input: "+" or "%" characters are not allowed | Time: ' + timeStr;
+                    'Invalid Input: "+", "%", or "-" characters are not allowed | Time: ' + timeStr;
                 return;
             }
 
