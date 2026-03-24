@@ -468,13 +468,9 @@
             <select class="case-type-select" id="caseTypeSelect">
                 <option value="">Select Case Type</option>
                 <option value="Repair">Repair</option>
-                <option value="ExpressRefresh">Express Refresh</option>
                 <option value="DOA">DOA</option>
+                <option value="ExpressRefresh">Express Refresh</option>
                 <option value="Return">Return</option>
-                <option value="SecondRepair">Second Repair</option>
-                <option value="RTS">RTS</option>
-                <option value="Premium Case">Premium Case</option>
-                <option value="Exception Case">Exception Case</option>
             </select>
         </div>
 
@@ -482,6 +478,14 @@
             <div class="stat-box">
                 <h3>Today's Scans</h3>
                 <p id="todayCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>End User</h3>
+                <p id="endUserCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>Dealer</h3>
+                <p id="dealerCount">0</p>
             </div>
             <div class="stat-box">
                 <h3>This Month's Scans</h3>
@@ -731,6 +735,7 @@
             const thisYear = now.getFullYear();
 
             let todayCount = 0;
+            let dealerCount = 0;
             let monthCount = 0;
             let totalCount = scanRecords.length;
 
@@ -739,6 +744,9 @@
                 
                 if (recordDate.toDateString() === today) {
                     todayCount++;
+                    if (record.carrier === 'PostNL') {
+                        dealerCount++;
+                    }
                 }
                 
                 if (recordDate.getMonth() === thisMonth && 
@@ -747,7 +755,11 @@
                 }
             });
 
+            let endUserCount = todayCount - dealerCount;
+
             document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('endUserCount').textContent = endUserCount;
+            document.getElementById('dealerCount').textContent = dealerCount;
             document.getElementById('monthCount').textContent = monthCount;
             document.getElementById('totalCount').textContent = totalCount;
         }
@@ -781,7 +793,7 @@
 
         function editCaseType(index) {
             const record = scanRecords[index];
-            const caseTypes = ['Repair', 'ExpressRefresh', 'DOA', 'Return', 'SecondRepair', 'RTS', 'Premium Case', 'Exception Case'];
+            const caseTypes = ['Repair', 'DOA', 'ExpressRefresh', 'Return'];
             
             let html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:10000;">';
             html += '<div style="background:#1a1a1a;padding:30px;border-radius:10px;border:2px solid #fff;text-align:center;">';
