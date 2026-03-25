@@ -93,6 +93,29 @@
             flex-wrap: wrap;
         }
 
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            background: #1a1a1a;
+            border: 3px solid #ffffff;
+            border-radius: 8px;
+            padding: 5px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .toggle-btn {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: #00ff00;
+            color: #000000;
+        }
+
         .scan-input {
             flex: 2;
             padding: 15px;
@@ -502,6 +525,10 @@
                 <option value="ExpressRefresh">Express Refresh</option>
                 <option value="Return">Return</option>
             </select>
+            <div class="toggle-container">
+                <div class="toggle-btn active" id="toggleDefault" onclick="setMode('Default')">Default</div>
+                <div class="toggle-btn" id="toggleManual" onclick="setMode('Manual')">Manual</div>
+            </div>
         </div>
 
         <div class="stats">
@@ -590,6 +617,14 @@
          let currentIndex = 0;
          let currentCaseType = '';
          let isFullscreen = false;
+         let inputMode = 'Default';
+
+         function setMode(mode) {
+             inputMode = mode;
+             document.getElementById('toggleDefault').classList.remove('active');
+             document.getElementById('toggleManual').classList.remove('active');
+             document.getElementById('toggle' + mode).classList.add('active');
+         }
 
          // Carrier detection rules
          function detectCarrier(barcode) {
@@ -645,9 +680,11 @@
                     if (barcode) {
                         processScan(barcode, caseType);
                         this.value = '';
-                        document.getElementById('caseTypeSelect').value = '';
-                        currentCaseType = '';
-                        updateCaseTypeDisplay('');
+                        if (inputMode === 'Default') {
+                            document.getElementById('caseTypeSelect').value = '';
+                            currentCaseType = '';
+                            updateCaseTypeDisplay('');
+                        }
                     }
                 }
             });
