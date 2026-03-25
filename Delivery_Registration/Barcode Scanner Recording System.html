@@ -512,15 +512,14 @@
         <div class="current-scan">
             <h2>Current Scan</h2>
             <div class="scan-display" id="scanDisplay">Waiting for scan...</div>
-            <div class="case-type-display" id="caseTypeDisplay">Case Type: Not Selected</div>
+            <div class="case-type-display" id="caseTypeDisplay">Case Type: Repair</div>
             <div class="scan-status" id="scanStatus">Ready | Please scan barcode with scanner</div>
         </div>
 
         <div class="input-section">
             <input type="text" class="scan-input" id="scanInput" placeholder="Scanner Input (Auto Focus)" autofocus>
             <select class="case-type-select" id="caseTypeSelect">
-                <option value="">Select Case Type</option>
-                <option value="Repair">Repair</option>
+                <option value="Repair" selected>Repair</option>
                 <option value="DOA">DOA</option>
                 <option value="ExpressRefresh">Express Refresh</option>
                 <option value="Return">Return</option>
@@ -681,9 +680,9 @@
                         processScan(barcode, caseType);
                         this.value = '';
                         if (inputMode === 'Default') {
-                            document.getElementById('caseTypeSelect').value = '';
-                            currentCaseType = '';
-                            updateCaseTypeDisplay('');
+                            document.getElementById('caseTypeSelect').value = 'Repair';
+                            currentCaseType = 'Repair';
+                            updateCaseTypeDisplay('Repair');
                         }
                     }
                 }
@@ -728,7 +727,7 @@
             if (caseType) {
                 display.textContent = 'Case Type: ' + caseType;
             } else {
-                display.textContent = 'Case Type: Not Selected';
+                display.textContent = 'Case Type: Repair';
             }
         }
 
