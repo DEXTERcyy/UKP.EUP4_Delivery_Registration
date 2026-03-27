@@ -84,6 +84,17 @@
             color: #ffff00;
             margin-top: 15px;
             font-weight: bold;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .display-tag {
+            background: #1a1a1a;
+            padding: 5px 20px;
+            border-radius: 10px;
+            border: 2px solid #fff;
         }
 
         .input-section {
@@ -512,7 +523,10 @@
         <div class="current-scan">
             <h2>Current Scan</h2>
             <div class="scan-display" id="scanDisplay">Waiting for scan...</div>
-            <div class="case-type-display" id="caseTypeDisplay">Case Type: Repair</div>
+            <div class="case-type-display" id="caseTypeDisplay">
+                <span class="display-tag" id="displayCarrier" style="display: none;">Carrier</span>
+                <span class="display-tag" id="displayCaseType">Case Type: Repair</span>
+            </div>
             <div class="scan-status" id="scanStatus">Ready | Please scan barcode with scanner</div>
         </div>
 
@@ -723,7 +737,7 @@
         }
 
         function updateCaseTypeDisplay(caseType) {
-            const display = document.getElementById('caseTypeDisplay');
+            const display = document.getElementById('displayCaseType');
             if (caseType) {
                 display.textContent = 'Case Type: ' + caseType;
             } else {
@@ -808,6 +822,12 @@
              display.style.color = '#ffffff';
              display.classList.add('flash');
              setTimeout(() => display.classList.remove('flash'), 500);
+
+             const carrierDisplay = document.getElementById('displayCarrier');
+             carrierDisplay.textContent = 'Carrier: ' + detectedCarrier;
+             carrierDisplay.style.display = 'inline-block';
+             
+             updateCaseTypeDisplay(finalCaseType);
 
              document.getElementById('scanStatus').textContent = 
                  'Scan Successful | Time: ' + timeStr;
