@@ -31,7 +31,7 @@
             text-align: center;
             color: #ffffff;
             margin-bottom: 10px;
-            font-size: 40px;
+            font-size: 24px;
             font-weight: bold;
         }
 
@@ -95,6 +95,7 @@
             padding: 5px 20px;
             border-radius: 10px;
             border: 2px solid #fff;
+            cursor: pointer;
         }
 
         .input-section {
@@ -524,8 +525,8 @@
             <h2>Current Scan</h2>
             <div class="scan-display" id="scanDisplay">Waiting for scan...</div>
             <div class="case-type-display" id="caseTypeDisplay">
-                <span class="display-tag" id="displayCarrier" style="display: none;">Carrier</span>
-                <span class="display-tag" id="displayCaseType">Case Type: Repair</span>
+                <span class="display-tag" id="displayCarrier" style="display: none;" onclick="editCurrentCarrier()">Carrier</span>
+                <span class="display-tag" id="displayCaseType" onclick="editCurrentCaseType()">Case Type: Repair</span>
             </div>
             <div class="scan-status" id="scanStatus">Ready | Please scan barcode with scanner</div>
         </div>
@@ -560,30 +561,44 @@
                 </div>
             </div>
             <div class="stat-box" style="min-width: 300px;">
-                <h3>This Month's Scans</h3>
-                <p id="monthCount">0</p>
+                <h3>Yesterday's Scans</h3>
+                <p id="yesterdayCount">0</p>
                 <div class="stat-sub">
                     <div class="stat-sub-item">
                         <span class="label">End User</span>
-                        <span class="value" id="monthEndUserCount">0</span>
+                        <span class="value" id="yesterdayEndUserCount">0</span>
                     </div>
                     <div class="stat-sub-item">
                         <span class="label">Dealer</span>
-                        <span class="value" id="monthDealerCount">0</span>
+                        <span class="value" id="yesterdayDealerCount">0</span>
                     </div>
                 </div>
             </div>
             <div class="stat-box" style="min-width: 300px;">
-                <h3>Total Scans</h3>
-                <p id="totalCount">0</p>
+                <h3>This Week's Scans</h3>
+                <p id="weekCount">0</p>
                 <div class="stat-sub">
                     <div class="stat-sub-item">
                         <span class="label">End User</span>
-                        <span class="value" id="totalEndUserCount">0</span>
+                        <span class="value" id="weekEndUserCount">0</span>
                     </div>
                     <div class="stat-sub-item">
                         <span class="label">Dealer</span>
-                        <span class="value" id="totalDealerCount">0</span>
+                        <span class="value" id="weekDealerCount">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-box" style="min-width: 300px;">
+                <h3>Last Week's Scans</h3>
+                <p id="lastWeekCount">0</p>
+                <div class="stat-sub">
+                    <div class="stat-sub-item">
+                        <span class="label">End User</span>
+                        <span class="value" id="lastWeekEndUserCount">0</span>
+                    </div>
+                    <div class="stat-sub-item">
+                        <span class="label">Dealer</span>
+                        <span class="value" id="lastWeekDealerCount">0</span>
                     </div>
                 </div>
             </div>
@@ -603,7 +618,7 @@
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Scanned Content</th>
+                            <th>Shipping Nr.</th>
                             <th>Carrier</th>
                             <th>Case Type</th>
                             <th>Scan Time</th>
@@ -795,7 +810,7 @@
                 }, 2000);
                 
                 document.getElementById('scanStatus').textContent = 
-                    'Duplicate Scan! This case number already exists | Time: ' + timeStr;
+                    'Duplicate Scan! This Shipping Nr. already exists | Time: ' + timeStr;
                 return;
             }
 
@@ -839,55 +854,83 @@
         function updateStats() {
             const now = new Date();
             const today = now.toDateString();
-            const thisMonth = now.getMonth();
-            const thisYear = now.getFullYear();
+            
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+
+            // This Week: Last 7 days
+            const thisWeekStart = new Date(now);
+            thisWeekStart.setDate(now.getDate() - 7);
+            
+            // Last Week: 7 to 14 days ago
+            const lastWeekStart = new Date(now);
+            lastWeekStart.setDate(now.getDate() - 14);
+            const lastWeekEnd = new Date(thisWeekStart);
 
             let todayCount = 0;
             let dealerCount = 0;
-            let monthCount = 0;
-            let monthDealerCount = 0;
-            let totalCount = scanRecords.length;
-            let totalDealerCount = 0;
+            let yesterdayCount = 0;
+            let yesterdayDealerCount = 0;
+            let weekCount = 0;
+            let weekDealerCount = 0;
+            let lastWeekCount = 0;
+            let lastWeekDealerCount = 0;
 
             scanRecords.forEach(record => {
                 const recordDate = new Date(record.timestamp);
+                const recordDateStr = recordDate.toDateString();
                 const isPostNL = record.carrier === 'PostNL';
                 
-                if (isPostNL) {
-                    totalDealerCount++;
-                }
-
-                if (recordDate.toDateString() === today) {
+                if (recordDateStr === today) {
                     todayCount++;
                     if (isPostNL) {
                         dealerCount++;
                     }
                 }
                 
-                if (recordDate.getMonth() === thisMonth && 
-                    recordDate.getFullYear() === thisYear) {
-                    monthCount++;
+                if (recordDateStr === yesterdayStr) {
+                    yesterdayCount++;
                     if (isPostNL) {
-                        monthDealerCount++;
+                        yesterdayDealerCount++;
+                    }
+                }
+
+                if (recordDate >= thisWeekStart && recordDate <= now) {
+                    weekCount++;
+                    if (isPostNL) {
+                        weekDealerCount++;
+                    }
+                }
+
+                if (recordDate >= lastWeekStart && recordDate < lastWeekEnd) {
+                    lastWeekCount++;
+                    if (isPostNL) {
+                        lastWeekDealerCount++;
                     }
                 }
             });
 
             let endUserCount = todayCount - dealerCount;
-            let monthEndUserCount = monthCount - monthDealerCount;
-            let totalEndUserCount = totalCount - totalDealerCount;
+            let yesterdayEndUserCount = yesterdayCount - yesterdayDealerCount;
+            let weekEndUserCount = weekCount - weekDealerCount;
+            let lastWeekEndUserCount = lastWeekCount - lastWeekDealerCount;
 
             document.getElementById('todayCount').textContent = todayCount;
             document.getElementById('endUserCount').textContent = endUserCount;
             document.getElementById('dealerCount').textContent = dealerCount;
             
-            document.getElementById('monthCount').textContent = monthCount;
-            document.getElementById('monthEndUserCount').textContent = monthEndUserCount;
-            document.getElementById('monthDealerCount').textContent = monthDealerCount;
+            document.getElementById('yesterdayCount').textContent = yesterdayCount;
+            document.getElementById('yesterdayEndUserCount').textContent = yesterdayEndUserCount;
+            document.getElementById('yesterdayDealerCount').textContent = yesterdayDealerCount;
             
-            document.getElementById('totalCount').textContent = totalCount;
-            document.getElementById('totalEndUserCount').textContent = totalEndUserCount;
-            document.getElementById('totalDealerCount').textContent = totalDealerCount;
+            document.getElementById('weekCount').textContent = weekCount;
+            document.getElementById('weekEndUserCount').textContent = weekEndUserCount;
+            document.getElementById('weekDealerCount').textContent = weekDealerCount;
+
+            document.getElementById('lastWeekCount').textContent = lastWeekCount;
+            document.getElementById('lastWeekEndUserCount').textContent = lastWeekEndUserCount;
+            document.getElementById('lastWeekDealerCount').textContent = lastWeekDealerCount;
         }
 
          function updateHistory() {
@@ -917,6 +960,18 @@
              }).join('');
          }
 
+        function editCurrentCaseType() {
+            if (scanRecords.length > 0) {
+                editCaseType(0);
+            }
+        }
+
+        function editCurrentCarrier() {
+            if (scanRecords.length > 0) {
+                editCarrier(0);
+            }
+        }
+
         function editCaseType(index) {
             const record = scanRecords[index];
             const caseTypes = ['Repair', 'DOA', 'ExpressRefresh', 'Return'];
@@ -924,7 +979,7 @@
             let html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:10000;">';
             html += '<div style="background:#1a1a1a;padding:30px;border-radius:10px;border:2px solid #fff;text-align:center;">';
             html += '<h3 style="color:#fff;margin-bottom:20px;">Edit Case Type</h3>';
-            html += '<p style="color:#ccc;margin-bottom:15px;">Case No.: ' + record.content + '</p>';
+            html += '<p style="color:#ccc;margin-bottom:15px;">Shipping Nr.: ' + record.content + '</p>';
             
             caseTypes.forEach(function(type) {
                 html += '<button onclick="changeCaseType(' + index + ',\'' + type + '\')" style="display:block;width:100%;padding:10px;margin:5px 0;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">' + type + '</button>';
@@ -940,6 +995,9 @@
             scanRecords[index].caseType = newType;
             saveRecords();
             updateHistory();
+            if (index === 0) {
+                updateCaseTypeDisplay(newType);
+            }
             closeEditDialog();
         }
 
@@ -950,7 +1008,7 @@
             let html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:10000;">';
             html += '<div style="background:#1a1a1a;padding:30px;border-radius:10px;border:2px solid #fff;text-align:center;max-height:80vh;overflow-y:auto;">';
             html += '<h3 style="color:#fff;margin-bottom:20px;">Edit Carrier</h3>';
-            html += '<p style="color:#ccc;margin-bottom:15px;">Case No.: ' + record.content + '</p>';
+            html += '<p style="color:#ccc;margin-bottom:15px;">Shipping Nr.: ' + record.content + '</p>';
             
             carriers.forEach(function(carrier) {
                 html += '<button onclick="changeCarrier(' + index + ',\'' + carrier + '\')" style="display:block;width:100%;padding:10px;margin:5px 0;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">' + carrier + '</button>';
@@ -967,6 +1025,10 @@
             saveRecords();
             updateStats();
             updateHistory();
+            if (index === 0) {
+                const carrierDisplay = document.getElementById('displayCarrier');
+                carrierDisplay.textContent = 'Carrier: ' + newCarrier;
+            }
             closeEditDialog();
         }
 
@@ -979,7 +1041,7 @@
 
         function deleteRecord(index) {
             const record = scanRecords[index];
-            if (confirm('Delete this record?\nCase No.: ' + record.content)) {
+            if (confirm('Delete this record?\nShipping Nr.: ' + record.content)) {
                 scanRecords.splice(index, 1);
                 saveRecords();
                 updateStats();
