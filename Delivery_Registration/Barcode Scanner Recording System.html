@@ -559,6 +559,16 @@
                         <span class="value" id="dealerCount">0</span>
                     </div>
                 </div>
+                <div class="stat-sub">
+                    <div class="stat-sub-item">
+                        <span class="label">Repair</span>
+                        <span class="value" id="todayRepairCount" style="color:#3498db">0</span>
+                    </div>
+                    <div class="stat-sub-item">
+                        <span class="label">Return</span>
+                        <span class="value" id="todayReturnCount" style="color:#f39c12">0</span>
+                    </div>
+                </div>
             </div>
             <div class="stat-box" style="min-width: 300px;">
                 <h3>Yesterday's Scans</h3>
@@ -571,6 +581,16 @@
                     <div class="stat-sub-item">
                         <span class="label">Dealer</span>
                         <span class="value" id="yesterdayDealerCount">0</span>
+                    </div>
+                </div>
+                <div class="stat-sub">
+                    <div class="stat-sub-item">
+                        <span class="label">Repair</span>
+                        <span class="value" id="yesterdayRepairCount" style="color:#3498db">0</span>
+                    </div>
+                    <div class="stat-sub-item">
+                        <span class="label">Return</span>
+                        <span class="value" id="yesterdayReturnCount" style="color:#f39c12">0</span>
                     </div>
                 </div>
             </div>
@@ -783,7 +803,7 @@
             const timeStr = hours + ':' + minutes + ':' + seconds;
             const dateStr = now.toLocaleDateString('en-US');
 
-            if (barcode.includes('+') || barcode.includes('%') || barcode.includes('-')) {
+            if (/[^a-zA-Z0-9]/.test(barcode)) {
                 const display = document.getElementById('scanDisplay');
                 display.textContent = 'Invalid Input';
                 display.style.color = '#ff0000';
@@ -794,7 +814,7 @@
                 }, 2000);
                 
                 document.getElementById('scanStatus').textContent = 
-                    'Invalid Input: "+", "%", or "-" characters are not allowed | Time: ' + timeStr;
+                    'Invalid Input: Only letters and numbers are allowed | Time: ' + timeStr;
                 return;
             }
 
@@ -870,8 +890,12 @@
 
             let todayCount = 0;
             let dealerCount = 0;
+            let todayRepairCount = 0;
+            let todayReturnCount = 0;
             let yesterdayCount = 0;
             let yesterdayDealerCount = 0;
+            let yesterdayRepairCount = 0;
+            let yesterdayReturnCount = 0;
             let weekCount = 0;
             let weekDealerCount = 0;
             let lastWeekCount = 0;
@@ -887,12 +911,24 @@
                     if (isPostNL) {
                         dealerCount++;
                     }
+                    if (record.caseType === 'Repair') {
+                        todayRepairCount++;
+                    }
+                    if (record.caseType === 'Return') {
+                        todayReturnCount++;
+                    }
                 }
                 
                 if (recordDateStr === yesterdayStr) {
                     yesterdayCount++;
                     if (isPostNL) {
                         yesterdayDealerCount++;
+                    }
+                    if (record.caseType === 'Repair') {
+                        yesterdayRepairCount++;
+                    }
+                    if (record.caseType === 'Return') {
+                        yesterdayReturnCount++;
                     }
                 }
 
@@ -919,10 +955,14 @@
             document.getElementById('todayCount').textContent = todayCount;
             document.getElementById('endUserCount').textContent = endUserCount;
             document.getElementById('dealerCount').textContent = dealerCount;
+            document.getElementById('todayRepairCount').textContent = todayRepairCount;
+            document.getElementById('todayReturnCount').textContent = todayReturnCount;
             
             document.getElementById('yesterdayCount').textContent = yesterdayCount;
             document.getElementById('yesterdayEndUserCount').textContent = yesterdayEndUserCount;
             document.getElementById('yesterdayDealerCount').textContent = yesterdayDealerCount;
+            document.getElementById('yesterdayRepairCount').textContent = yesterdayRepairCount;
+            document.getElementById('yesterdayReturnCount').textContent = yesterdayReturnCount;
             
             document.getElementById('weekCount').textContent = weekCount;
             document.getElementById('weekEndUserCount').textContent = weekEndUserCount;
